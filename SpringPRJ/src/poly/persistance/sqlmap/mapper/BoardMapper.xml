@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- JAVA와 연결할 Mapper 파일 설정 -->
+<mapper namespace="poly.persistance.mapper.BoardMapper">
+
+	<!-- 회원번호 가져오기 -->
+	<select id="getBoardNo" resultType="BoardDTO">
+		SELECT  IFNULL(MAX(BOARD_NO), 0) +1 AS BOARDNO
+		  FROM BOARD_INFO
+	</select>
+	
+	
+	<insert id="insertBoard" parameterType="BoardDTO">
+		INSERT INTO BOARD_INFO ( 
+			BOARD_NO,
+			TITLE,  
+			CONTENT, 
+			REG_USER_NO,
+			REG_DT,
+			CHG_USER_NO,
+			CHG_DT,
+			USER_ID,
+			USER_NAME,
+			USER_NO
+			
+		)VALUES (
+			#{boardNo},
+			#{title},
+			#{content},
+			#{userNo},
+			NOW(),
+			#{userNo},
+			NOW(),
+			#{userId},
+			#{userName},
+			#{userNo}
+			
+		)
+	</insert>
+	
+	<select id="getBoardListTotalCount" resultType="integer" parameterType="string">
+		SELECT COUNT(0) AS CNT 
+		FROM BOARD_INFO 
+		WHERE TITLE like CONCAT('%', #{keyword}, '%')
+	</select>
+	
+	<select id="getBoardList" resultType="BoardDTO" parameterType="PagingDTO">
+		 SELECT  BOARD_NO as boardNo,
+		 		 TITLE as title,
+		 		 CONTENT as content,
+		 		 USER_NAME as userName,
+		 		 USER_ID as userId,
+		 		 CHG_DT as chgDt,
+		 		 VIEWCNT as viewCnt
+		 FROM BOARD_INFO 
+		 WHERE TITLE like CONCAT('%', #{keyword}, '%') 
+		 ORDER BY BOARD_NO DESC 
+		 LIMIT #{currentItem}, #{itemPerPage}
+	</select>
+	
+	<select id="getBoardDetail" resultType="BoardDTO" parameterType="BoardDTO">
+		 SELECT  BOARD_NO as boardNo,
+		 		 TITLE as title,
+		 		 CONTENT as content,
+		 		 USER_NAME as userName,
+		 		 USER_ID as userId,
+		 		 CHG_DT as chgDt,
+		 		 VIEWCNT as viewCnt
+		 FROM BOARD_INFO 
+		 WHERE BOARD_NO = #{boardNo}
+	</select>
+	
+	<update id="BoardRevise2" parameterType="BoardDTO" >
+		UPDATE BOARD_INFO
+		SET TITLE = #{title},
+			CONTENT = #{content},
+			CHG_DT = NOW()
+		WHERE BOARD_NO = #{boardNo}
+	</update>
+	
+	<delete id="BoardDelete" parameterType="BoardDTO">
+		DELETE FROM BOARD_INFO
+		WHERE BOARD_NO = #{boardNo}
+	</delete>
+	
+	<update id="updateViewCnt" parameterType="BoardDTO">
+		UPDATE BOARD_INFO
+		SET VIEWCNT = VIEWCNT + 1
+		WHERE BOARD_NO = #{boardNo}
+	</update>
+	
+</mapper>

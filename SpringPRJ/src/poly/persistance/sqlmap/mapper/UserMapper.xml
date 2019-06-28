@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- JAVA와 연결할 Mapper 파일 설정 -->
+<mapper namespace="poly.persistance.mapper.UserMapper">
+
+	<!-- 회원번호 가져오기 -->
+	<select id="getUserNo" resultType="UserDTO">
+		SELECT  IFNULL(MAX(USER_NO), 0) +1 AS USERNO 
+		  FROM USER_INFO
+	</select>
+	
+	
+	<insert id="insertMember" parameterType="UserDTO">
+		INSERT INTO USER_INFO ( 
+			USER_NO,
+			USER_ID, 
+			USER_NAME, 
+			PASSWORD, 
+			GENDER,
+			EMAIL,
+			PHONE,
+			REG_USER_NO,
+			REG_DT,
+			CHG_USER_NO,
+			CHG_DT
+		)VALUES (
+			#{userNo},
+			#{userId},
+			#{userName},
+			#{password},
+			#{gender},
+			#{email},
+			#{phone},
+			#{userNo},
+			NOW(),
+			#{userNo},
+			NOW()
+		)
+	</insert>
+	
+	<select id="checkDuplication" resultType="int" parameterType="string">
+			SELECT COUNT(*)
+			FROM USER_INFO
+			WHERE USER_ID = #{id}
+	</select>
+	
+	<select id="getUserInfo" parameterType="UserDTO" resultType="UserDTO">
+		SELECT  USER_NO as userNo
+		 FROM USER_INFO
+		 WHERE USER_NAME = #{userName}
+		 AND USER_ID = #{userId} 
+	</select>
+	
+	<update id="emailConfirm" parameterType="UserDTO">
+		UPDATE USER_INFO
+		SET EMAIL_CONFIRM = 'Y'
+		WHERE USER_NO = #{userNo}
+	</update>
+	
+	<select id="getLoginInfo" parameterType="UserDTO" resultType="UserDTO">
+		SELECT  USER_NO AS userNo,
+				USER_ID AS userId,
+				USER_NAME AS userName,
+				PASSWORD AS password,
+				EMAIL AS email,
+				GENDER AS gender,
+				PHONE AS phone,
+				REG_DT AS regDt,
+				CHG_DT AS chgDt,
+				EMAIL_CONFIRM AS emailConfirm
+		 FROM USER_INFO
+		 WHERE USER_ID = #{userId}
+		   AND PASSWORD = #{password}
+	</select>
+	
+	<select id="getIdfind" parameterType="UserDTO" resultType="UserDTO">
+		SELECT  USER_NO AS userNo,
+				USER_ID AS userId,
+				USER_NAME AS userName,
+				PASSWORD AS password,
+				EMAIL AS email,
+				GENDER AS gender,
+				PHONE AS phone,
+				REG_DT AS regDt,
+				CHG_DT AS chgDt,
+				EMAIL_CONFIRM AS emailConfirm
+		 FROM USER_INFO
+		 WHERE USER_NAME = #{userName}
+		   AND EMAIL = #{email}
+		    
+	</select>
+	
+	<select id="getMyPage" parameterType="UserDTO" resultType="UserDTO">
+		SELECT  USER_NO AS userNo,
+				USER_ID AS userId,
+				USER_NAME AS userName,
+				PASSWORD AS password,
+				EMAIL AS email,
+				GENDER AS gender,
+				PHONE AS phone,
+				REG_DT AS regDt,
+				CHG_DT AS chgDt,
+				EMAIL_CONFIRM AS emailConfirm
+		 FROM USER_INFO
+		 WHERE USER_NO = #{userNo}
+	</select>
+	
+	
+	
+	<update id="updateTmpPass" parameterType="UserDTO">
+		UPDATE USER_INFO
+		SET PASSWORD = #{password}
+		WHERE EMAIL = #{email}
+		AND USER_ID = #{userId}
+	</update>
+	
+	<update id="mypagerevise2" parameterType="UserDTO" >
+		UPDATE USER_INFO
+		SET USER_NAME = #{userName},
+			PHONE = #{phone},
+			PASSWORD = #{password}
+		WHERE USER_ID = #{userId}
+	</update>
+	
+	<delete id="mypagedelete" parameterType="UserDTO">
+		DELETE FROM USER_INFO
+		WHERE USER_NO = #{userNo}
+	</delete>
+	
+	<select id="getUserList" resultType="UserDTO" parameterType="PagingDTO">
+		 SELECT USER_NO AS userNo,
+				USER_ID AS userId,
+				USER_NAME AS userName,
+				PASSWORD AS password,
+				EMAIL AS email,
+				GENDER AS gender,
+				PHONE AS phone,
+				REG_DT AS regDt,
+				CHG_DT AS chgDt,
+				EMAIL_CONFIRM AS emailConfirm
+		 FROM USER_INFO 
+		 WHERE USER_ID like CONCAT('%', #{keyword}, '%') 
+		 ORDER BY USER_NO DESC
+		 LIMIT #{currentItem}, #{itemPerPage}
+	</select>
+	
+	<select id="UserDetail" parameterType="UserDTO" resultType="UserDTO">
+		SELECT  USER_NO AS userNo,
+				USER_ID AS userId,
+				USER_NAME AS userName,
+				PASSWORD AS password,
+				EMAIL AS email,
+				GENDER AS gender,
+				PHONE AS phone,
+				REG_DT AS regDt,
+				CHG_DT AS chgDt,
+				EMAIL_CONFIRM AS emailConfirm
+		 FROM USER_INFO
+		 WHERE USER_NO = #{userNo}
+		    
+	</select>
+	
+	<update id="UserRevise2" parameterType="UserDTO" >
+		UPDATE USER_INFO
+		SET USER_NAME = #{userName},
+			PHONE = #{phone},
+			PASSWORD = #{password}
+		WHERE USER_NO = #{userNo}
+	</update>
+	
+	<delete id="UserDelete" parameterType="UserDTO">
+		DELETE FROM USER_INFO
+		WHERE USER_NO = #{userNo}
+	</delete>
+	
+	<select id="getUserListTotalCount" resultType="integer" parameterType="string">
+		SELECT COUNT(0) AS CNT 
+		FROM USER_INFO
+		WHERE USER_ID like CONCAT('%', #{keyword}, '%')
+	</select>
+	
+</mapper>
